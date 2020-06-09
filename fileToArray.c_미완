@@ -1,111 +1,111 @@
 #define _CRT_SECURE_NO_WARNINGS
 
-/*Çì´õÆÄÀÏ*/
+/*í—¤ë”íŒŒì¼*/
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "SLR_table.h"
 #include "CFG G.h"
 
-/*¸ÅÅ©·Î »ó¼ö*/
+/*ë§¤í¬ë¡œ ìƒìˆ˜*/
 #define MAX_STACK_SIZE 100
 #define true 1
 #define false 0
 
-/*Àü¿ª º¯¼ö*/
-//input_string¹è¿­- µ¿ÀûÇÒ´ç
+/*ì „ì—­ ë³€ìˆ˜*/
+//input_stringë°°ì—´- ë™ì í• ë‹¹
 char **input_string;
-//,ÀÇ °³¼ö¸¦ ÀĞ¾î¼­ terminal °³¼ö ÆÄ¾Ç
+//,ì˜ ê°œìˆ˜ë¥¼ ì½ì–´ì„œ terminal ê°œìˆ˜ íŒŒì•…
 int num_terminal = 0;
-//terminal Å©±â ¹è¿­
+//terminal í¬ê¸° ë°°ì—´
 int *input_length;
-//stack ±¸Çö
+//stack êµ¬í˜„
 int stack[MAX_STACK_SIZE];   //global var
 int top = -1;
 
-/*ÇÔ¼ö ¼±¾ğ*/
-//½ºÅÃ
+/*í•¨ìˆ˜ ì„ ì–¸*/
+//ìŠ¤íƒ
 int isEmpty();
 int isFull();
 void push(int value);
 int pop();
-//lexical_outputÀ» ¹è¿­·Î º¯È¯
+//lexical_outputì„ ë°°ì—´ë¡œ ë³€í™˜
 void fileToArray();
-//input_string[]°ú ÀÏÄ¡ÇÏ´Â ACTION ¹İÈ¯
+//input_string[]ê³¼ ì¼ì¹˜í•˜ëŠ” ACTION ë°˜í™˜
 int compare_input_ACTION(int partition);
 
 
 int main() {
-	//partitionµÚÀÇ ¹è¿­¿ä¼Ò: input_string[partition], partition¾ÕÀÇ ¹è¿­¿ä¼Ò: input_string[partition-1]
+	//partitionë’¤ì˜ ë°°ì—´ìš”ì†Œ: input_string[partition], partitionì•ì˜ ë°°ì—´ìš”ì†Œ: input_string[partition-1]
 	int partition=0; 
-	//compare_input_ACTIONÇÔ¼ö È£ÃâÇÏ¸é SLR_ACTION_col ¹İÈ¯
+	//compare_input_ACTIONí•¨ìˆ˜ í˜¸ì¶œí•˜ë©´ SLR_ACTION_col ë°˜í™˜
 	int SLR_ACTION_col = -1;
-	//strcmp()·Î SLR_GOTO_col Å½»ö
+	//strcmp()ë¡œ SLR_GOTO_col íƒìƒ‰
 	int SLR_GOTO_col = -1;
-	//½ºÅÃ¿¡ ÀúÀåÇÒ state
+	//ìŠ¤íƒì— ì €ì¥í•  state
 	int nextState ;
-	//SLR_table¿¡ ÀúÀåµÈ value
+	//SLR_tableì— ì €ì¥ëœ value
 	int value_SLR_ACTION;
 	int p_value_SLR_ACTION;
 	int value_SLR_GOTO;
-	//A->alpha¿¡¼­ |alpha|
+	//A->alphaì—ì„œ |alpha|
 	int len_alpha;
-	//Reduce°á°ú ÀúÀåÇÏ±â À§ÇÑ ¹è¿­
+	//Reduceê²°ê³¼ ì €ì¥í•˜ê¸° ìœ„í•œ ë°°ì—´
 	char **Reduce_temp;
 	int partition_Reduce;
 
-	/*lexical_outputÀ» ¹è¿­·Î º¯È¯*/
+	/*lexical_outputì„ ë°°ì—´ë¡œ ë³€í™˜*/
 	fileToArray();
 	
-	//input_length¸¦ ÅÍ¹Ì³ÎÀÇ °³¼ö(+10)¸¸Å­ ÇÒ´ç
+	//input_lengthë¥¼ í„°ë¯¸ë„ì˜ ê°œìˆ˜(+10)ë§Œí¼ í• ë‹¹
 	input_length = malloc(sizeof(int)*(num_terminal + 10));
 
-	/*input_string Ãâ·Â, terminalÅ©±â ÃøÁ¤*/
+	/*input_string ì¶œë ¥, terminalí¬ê¸° ì¸¡ì •*/
 	printf("|");
 	for (int row = 0; row < num_terminal; row++) {
 		for (int col = 0; ; col++) {
 			if (input_string[row][col] == ',') {
 				printf(" ");
-				//input_string[row]¿¡ ÀúÀåµÈ terminalÀÇ Å©±â¸¦ input_length[row]¿¡ ÀúÀå
+				//input_string[row]ì— ì €ì¥ëœ terminalì˜ í¬ê¸°ë¥¼ input_length[row]ì— ì €ì¥
 				input_length[row] = col;
 				break;
 			}
 			else {
-				//input_string Ãâ·Â
+				//input_string ì¶œë ¥
 				printf("%c", input_string[row][col]);
 			}
 		}
 	}
 	printf("\n\n");
-	//Reduce_tempµ¿ÀûÇÒ´ç
+	//Reduce_tempë™ì í• ë‹¹
 	Reduce_temp = malloc(sizeof(char*)*(num_terminal + 10));
 	for (int i = 0; i < num_terminal; i++) {
 		Reduce_temp[i] = malloc(sizeof(char)*TERMINAL_MAX_LENGTH);
 	}
 
 	/*stack initializatione- push(0)*/
-	nextState = 0;//state T°¡ 0ºÎÅÍ ½ÃÀÛÇÏ¹Ç·Î 0À» push
+	nextState = 0;//state Tê°€ 0ë¶€í„° ì‹œì‘í•˜ë¯€ë¡œ 0ì„ push
 	push(nextState);
 	
 	/*SLR parsing*/
 	for (int i = 0; i < 10; i++) {
 		printf("stack[top]: %d  ", stack[top]);
-		/*partitionµÚÀÇ terminal(input_string[partition])°ú ÀÏÄ¡ÇÏ´Â ACTIONÀÇ terminal Ã£±â*/
+		/*partitionë’¤ì˜ terminal(input_string[partition])ê³¼ ì¼ì¹˜í•˜ëŠ” ACTIONì˜ terminal ì°¾ê¸°*/
 		SLR_ACTION_col = compare_input_ACTION(partition);
 		if (SLR_ACTION_col == -1) {
-			printf("ÀÏÄ¡ÇÏ´Â ACTIONÀÌ ¾ø½À´Ï´Ù.\n");
+			printf("ì¼ì¹˜í•˜ëŠ” ACTIONì´ ì—†ìŠµë‹ˆë‹¤.\n");
 		}
 
 		printf("SLR_table_ACTION[%d][%d]: %d  ", stack[top], SLR_ACTION_col, SLR_table_ACTION[stack[top]][SLR_ACTION_col]);
 		value_SLR_ACTION = SLR_table_ACTION[stack[top]][SLR_ACTION_col];
-		/*value_SLRÀÌ À½¼öÀÏ °æ¿ì Reduce*/
+		/*value_SLRì´ ìŒìˆ˜ì¼ ê²½ìš° Reduce*/
 		if (value_SLR_ACTION <= 0) {
 			
-			//value_SLR_ACTIONÀÌ À½¼ö¸é p_value_SLR_ACTION¿¡ Àı´ñ°ª ÀúÀå
+			//value_SLR_ACTIONì´ ìŒìˆ˜ë©´ p_value_SLR_ACTIONì— ì ˆëŒ“ê°’ ì €ì¥
 			if (value_SLR_ACTION < 0) {
 				p_value_SLR_ACTION = -value_SLR_ACTION;
 			}
-			//partition¾ÕÀÇ ¹è¿­¿ä¼Ò¸¦ Reduce
+			//partitionì•ì˜ ë°°ì—´ìš”ì†Œë¥¼ Reduce
 			len_alpha = G_L_size[p_value_SLR_ACTION];
 			partition_Reduce = partition - len_alpha;
 			for (int row = 0; row < partition_Reduce; row++) {
@@ -132,7 +132,7 @@ int main() {
 			value_SLR_GOTO = SLR_table_GOTO[stack[top]][SLR_GOTO_col];
 			push(value_SLR_GOTO);
 
-			//A->alpha, A ¸¦ Reduce_temp¿¡ ÀúÀå
+			//A->alpha, A ë¥¼ Reduce_tempì— ì €ì¥
 			//printf("%s |", G_R[p_value_SLR_ACTION]);
 			for (int i = 0;; i++) {
 				Reduce_temp[partition_Reduce][i] = GOTO_Reduce[SLR_GOTO_col][i];
@@ -140,7 +140,7 @@ int main() {
 					break;
 				}
 			}
-			//partitionµŞºÎºĞ ÀúÀå
+			//partitionë’·ë¶€ë¶„ ì €ì¥
 			for (int row = partition_Reduce + 1; row < num_terminal; row++) {
 				for (int col = 0; col<=input_length[row]; col++) {
 						//printf("%c", input_string[partition][col]);
@@ -148,7 +148,7 @@ int main() {
 					}
 				}
 			
-			//Reduce_tempÃâ·Â
+			//Reduce_tempì¶œë ¥
 			printf("<Reduce> ");
 			for (int row = 0; row < num_terminal; row++) {
 				
@@ -162,7 +162,7 @@ int main() {
 			}
 			printf("\n");
 		}
-		else { /*ACTION - S ÀÎ °æ¿ì*/
+		else { /*ACTION - S ì¸ ê²½ìš°*/
 			printf("<Shift> ");
 			if (19 >= SLR_ACTION_col && SLR_ACTION_col >= 0) {
 				//shift
@@ -170,7 +170,7 @@ int main() {
 				//push the next state
 				push(value_SLR_ACTION);
 			}
-			//partition¾Õ±îÁö Ãâ·Â
+			//partitionì•ê¹Œì§€ ì¶œë ¥
 			for (int row = 0; row <= partition - 1; row++) {
 				for (int col = 0; input_string[row][col] != ','; col++) {
 					printf("%c", input_string[row][col]);
@@ -178,7 +178,7 @@ int main() {
 				printf(" ");
 			}
 			printf("|");
-			//partitionÀÌÈÄ Ãâ·Â
+			//partitionì´í›„ ì¶œë ¥
 			for (int row = partition; row < num_terminal; row++) {
 				for (int col = 0; input_string[row][col] != ','; col++) {
 					printf("%c", input_string[row][col]);
@@ -196,7 +196,7 @@ int main() {
 	return 0;
 }
 
-/*½ºÅÃ*/
+/*ìŠ¤íƒ*/
 int IsEmpty() {
 	if (top < 0)
 		return true;
@@ -226,49 +226,49 @@ int pop() {
 
 
 
-/*lexical_outputÀ» ¹è¿­·Î º¯È¯*/
+/*lexical_outputì„ ë°°ì—´ë¡œ ë³€í™˜*/
 void fileToArray() {
-	//ÆÄÀÏ Æ÷ÀÎÅÍfp
-	FILE *fp;  //fp ÃÊ±âÈ­ 
-	//lexical_outputÀÇ <ERROR>Å½»ö
+	//íŒŒì¼ í¬ì¸í„°fp
+	FILE *fp;  //fp ì´ˆê¸°í™” 
+	//lexical_outputì˜ <ERROR>íƒìƒ‰
 	char ch_error = ' ';
-	//lexical_outputÀ» ¹è¿­¿¡ ÀúÀåÇÏ±â
+	//lexical_outputì„ ë°°ì—´ì— ì €ì¥í•˜ê¸°
 	char ch_array = ' ';
 
-	/*ouput.txt ÀĞ¾î¿À±â*/
-	if ((fp = fopen("C:\\Users\\¹æÀ±ÇÏ\\Desktop\\2020-1\\°úÁ¦\\ÄÄÆÄÀÏ·¯\\proj1\\input_output\\lexical_output.txt", "r")) == NULL) //ÆÄÀÏÀ» ÀĞÀ» ¼ö ¾ø´Â °æ¿ì
+	/*ouput.txt ì½ì–´ì˜¤ê¸°*/
+	if ((fp = fopen("C:\\Users\\ë°©ìœ¤í•˜\\Desktop\\2020-1\\ê³¼ì œ\\ì»´íŒŒì¼ëŸ¬\\proj1\\input_output\\lexical_output.txt", "r")) == NULL) //íŒŒì¼ì„ ì½ì„ ìˆ˜ ì—†ëŠ” ê²½ìš°
 		printf("ERROR- cannot lexical_output.txt \n");
 	else {
-		/*ouput.txt¿¡ <ERROR>°¡ ÀÖ´ÂÁö °Ë»ç*/
+		/*ouput.txtì— <ERROR>ê°€ ìˆëŠ”ì§€ ê²€ì‚¬*/
 		for (; ch_error != EOF && ch_error != '<'; ) {
 			ch_error = fgetc(fp);
 		}
-		//fp ÆÄÀÏ ¸Ç ¾ÕÀ¸·Î ÃÊ±âÈ­
+		//fp íŒŒì¼ ë§¨ ì•ìœ¼ë¡œ ì´ˆê¸°í™”
 		fseek(fp, 0, SEEK_SET);
 		if (ch_error == '<') {
-			printf("lexica_output¿¡ <ERROR>°¡ Á¸ÀçÇÕ´Ï´Ù. \n");
+			printf("lexica_outputì— <ERROR>ê°€ ì¡´ì¬í•©ë‹ˆë‹¤. \n");
 		}
-		//<ERROR> ¾øÀ¸¸é ÅÍ¹Ì³Î °³¼ö(num_terminal)È®ÀÎ
+		//<ERROR> ì—†ìœ¼ë©´ í„°ë¯¸ë„ ê°œìˆ˜(num_terminal)í™•ì¸
 		else {
-			//,°³¼ö == num_terminal
+			//,ê°œìˆ˜ == num_terminal
 			for (char ch_count = fp; ch_count != EOF; ) {
 				ch_count = fgetc(fp);
 				if (ch_count == ',') {
 					num_terminal++;
 				}
 			}
-			//fp ÆÄÀÏ ¸Ç ¾ÕÀ¸·Î ÃÊ±âÈ­
+			//fp íŒŒì¼ ë§¨ ì•ìœ¼ë¡œ ì´ˆê¸°í™”
 			fseek(fp, 0, SEEK_SET);
 		}
 	}
 
-	/*input_string Å©±â ÇÒ´ç- [num_terminal+10][TERMINAL_MAX_LENGTH] */
+	/*input_string í¬ê¸° í• ë‹¹- [num_terminal+10][TERMINAL_MAX_LENGTH] */
 	input_string = malloc(sizeof(char*)*(num_terminal + 10));
 	for (int i = 0; i < num_terminal; i++) {
 		input_string[i] = malloc(sizeof(char)*TERMINAL_MAX_LENGTH);
 	}
 
-	/*,¸¦ ±¸ºĞÁ¡À¸·Î ÇÏ¿© ¹è¿­¿¡ terminal ÀúÀå*/
+	/*,ë¥¼ êµ¬ë¶„ì ìœ¼ë¡œ í•˜ì—¬ ë°°ì—´ì— terminal ì €ì¥*/
 	for (int row = 0; row < num_terminal; row++) {
 		for (int col = 0;; col++) {
 			ch_array = getc(fp);
@@ -278,30 +278,30 @@ void fileToArray() {
 			}
 		}
 	}
-	//fp ÆÄÀÏ ¸Ç ¾ÕÀ¸·Î ÃÊ±âÈ­
+	//fp íŒŒì¼ ë§¨ ì•ìœ¼ë¡œ ì´ˆê¸°í™”
 	fseek(fp, 0, SEEK_SET);
 }
 
-/*partitionµÚÀÇ terminal(input_string[partition])°ú ÀÏÄ¡ÇÏ´Â ACTIONÀÇ terminal Ã£±â*/
+/*partitionë’¤ì˜ terminal(input_string[partition])ê³¼ ì¼ì¹˜í•˜ëŠ” ACTIONì˜ terminal ì°¾ê¸°*/
 int compare_input_ACTION(int partition) {
-	//input_string¹è¿­¿¡ ÀúÀåµÈ terminal°ú input_ACTION¹è¿­¿¡ ÀúÀåµÈ terminalÀÇ Å©±â ºñ±³
+	//input_stringë°°ì—´ì— ì €ì¥ëœ terminalê³¼ input_ACTIONë°°ì—´ì— ì €ì¥ëœ terminalì˜ í¬ê¸° ë¹„êµ
 	for (int i = 0; i < num_syntax_terminal; i++) {
 		if (input_length[partition] == ACTION_length[i]) {
-			//¹®ÀÚ ÀÏÄ¡ÇÏ´ÂÁö È®ÀÎ
+			//ë¬¸ì ì¼ì¹˜í•˜ëŠ”ì§€ í™•ì¸
 			for (int j = 0; j < input_length[partition]; j++) {
-				//ÀÏÄ¡ÇÏÁö ¾ÊÀ¸¸é break;
+				//ì¼ì¹˜í•˜ì§€ ì•Šìœ¼ë©´ break;
 				if (input_string[partition][j] != ACTION[i][j]) {
 					break;
 				}
 				else {
-					//¹®ÀÚ°¡ ¸ğµÎ ÀÏÄ¡ÇÏ´Â °æ¿ì
+					//ë¬¸ìê°€ ëª¨ë‘ ì¼ì¹˜í•˜ëŠ” ê²½ìš°
 					if (j == input_length[partition] - 1) {
 						for (int k = 0; k <= j; k++) {
 							printf("%c", ACTION[i][k]);
 						}
 						printf("\n");
 
-						//ÀÏÄ¡ÇÏ´Â input_ACTIONÀÇ terminalÀÇ ÀÎµ¦½º ¹İÈ¯
+						//ì¼ì¹˜í•˜ëŠ” input_ACTIONì˜ terminalì˜ ì¸ë±ìŠ¤ ë°˜í™˜
 						return i;
 					}
 				}
@@ -310,6 +310,6 @@ int compare_input_ACTION(int partition) {
 		}
 	}
 
-	//ÀÏÄ¡ÇÏ´Â input_ACTIONÀÇ terminalÀÌ ¾ø´Â °æ¿ì
+	//ì¼ì¹˜í•˜ëŠ” input_ACTIONì˜ terminalì´ ì—†ëŠ” ê²½ìš°
 	return -1;
 }
