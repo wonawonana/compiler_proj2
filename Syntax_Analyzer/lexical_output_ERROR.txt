@@ -1,0 +1,5 @@
+vtype,num,
+<ERROR>
+error at .
+입력된 문자열: 0.
+literal,id,if,else,while,for,return,addsub,addsub,multdiv,multdiv,assign,comp,semi,comma,lparen,rparen,lbrace,rbrace,
