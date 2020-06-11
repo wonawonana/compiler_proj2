@@ -33,7 +33,7 @@ int isFull();
 void push(int value);
 int pop();
 //lexical_output을 배열로 변환
-void fileToArray(char* file);
+void fileToArray(int argc,char* argv[]);
 //input_string[]과 일치하는 ACTION 반환
 int compare_input_ACTION(int partition);
 
@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
 
 	
 	/*lexical_output을 배열로 변환*/
-	fileToArray(argv[1]);
+	fileToArray(argc,argv);
 	
 	//input_length를 터미널의 개수(+10)만큼 할당
 	input_length = malloc(sizeof(int)*(num_terminal + 10));
@@ -250,7 +250,7 @@ int pop() {
 
 
 /*lexical_output을 배열로 변환*/
-void fileToArray(char* file) {
+void fileToArray(int argc, char* argv[]) {
 	//파일 포인터fp
 	FILE *fp;  //fp 초기화 
 	//lexical_output의 <ERROR>탐색
@@ -258,6 +258,10 @@ void fileToArray(char* file) {
 	//lexical_output을 배열에 저장하기
 	char ch_array = ' ';
 
+	char* file="";
+	for (int x = 1; x < argc; x++) {
+		file= strcat(file, argv[x]);
+	}
 	/*ouput.txt 읽어오기*/
 	if ((fp = fopen(file, "r")) == NULL) //파일을 읽을 수 없는 경우
 		printf("ERROR- cannot lexical_output.txt \n");
