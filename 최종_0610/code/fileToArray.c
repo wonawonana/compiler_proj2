@@ -33,12 +33,12 @@ int isFull();
 void push(int value);
 int pop();
 //lexical_output을 배열로 변환
-void fileToArray();
+void fileToArray(char* file);
 //input_string[]과 일치하는 ACTION 반환
 int compare_input_ACTION(int partition);
 
 
-int main() {
+int main(int argc, char *argv[]) {
 	//partition뒤의 배열요소: input_string[partition], partition앞의 배열요소: input_string[partition-1]
 	int partition = 0; //SLR_ACTION_col 탐색
 	//compare_input_ACTION함수 호출하면 SLR_ACTION_col 반환
@@ -59,8 +59,9 @@ int main() {
 	//parsing temp에 저장된 terminal, nonterminal의 개수
 	int num_parsing_temp;
 
+	
 	/*lexical_output을 배열로 변환*/
-	fileToArray();
+	fileToArray(argv[1]);
 	
 	//input_length를 터미널의 개수(+10)만큼 할당
 	input_length = malloc(sizeof(int)*(num_terminal + 10));
@@ -213,7 +214,7 @@ int main() {
 			printf("\n\n");
 		}
 	}
-
+	
 
 	return 0;
 }
@@ -249,7 +250,7 @@ int pop() {
 
 
 /*lexical_output을 배열로 변환*/
-void fileToArray() {
+void fileToArray(char* file) {
 	//파일 포인터fp
 	FILE *fp;  //fp 초기화 
 	//lexical_output의 <ERROR>탐색
@@ -258,7 +259,7 @@ void fileToArray() {
 	char ch_array = ' ';
 
 	/*ouput.txt 읽어오기*/
-	if ((fp = fopen("C:\\Users\\방윤하\\Desktop\\2020-1\\과제\\컴파일러\\proj1\\input_output\\lexical_output.txt", "r")) == NULL) //파일을 읽을 수 없는 경우
+	if ((fp = fopen(file, "r")) == NULL) //파일을 읽을 수 없는 경우
 		printf("ERROR- cannot lexical_output.txt \n");
 	else {
 		/*ouput.txt에 <ERROR>가 있는지 검사*/
