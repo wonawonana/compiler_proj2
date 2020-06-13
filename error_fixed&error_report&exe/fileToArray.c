@@ -123,7 +123,7 @@ int main(int argc, char *argv[]) {
 			printf("---------------------------------------------------------------------\n");
 			break;
 		}
-		//REJECT
+		//REJECT 
 		if (SLR_table_ACTION[stack[top]][SLR_ACTION_col] == 100) {
 			printf("\n---------------------------------------------------------------------\n");
 			printf("REJECT\n");

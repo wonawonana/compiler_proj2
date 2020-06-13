@@ -1,1 +1,0 @@
-vtype,id,lparen,rparen,lbrace,while,lparen,id,comp,num,rparen,lbrace,rbrace,return,id,semi,rbrace,
